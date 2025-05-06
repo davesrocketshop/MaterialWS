@@ -1,2 +1,2 @@
 # MaterialWS
-A workbench for external materials using a web wervice
+A workbench for storing materials in a web service
