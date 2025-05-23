@@ -26,7 +26,8 @@ import requests
 from requests.exceptions import HTTPError
 
 import Materials
-from MaterialAPI.MaterialManagerExternal import MaterialLibraryType, MaterialLibraryObjectType
+from MaterialAPI.MaterialManagerExternal import MaterialLibraryType, MaterialLibraryObjectType, \
+    ModelObjectType, MaterialObjectType
 
 from MaterialWS.WS.Exceptions import WSLibraryCreationError, \
     WSIconError, WSLibraryNotFound, \
@@ -43,7 +44,7 @@ class WebService:
     def __init__(self):
         self._baseURL = "http://127.0.0.1:8000/materialws/"
 
-    def getLibraries(self):
+    def getLibraries(self) -> list[MaterialLibraryType]:
         libraries = []
         try:
             response = requests.get(self._baseURL + "library")
@@ -63,7 +64,7 @@ class WebService:
 
         return libraries
 
-    def getModelLibraries(self):
+    def getModelLibraries(self) -> list[MaterialLibraryType]:
         libraries = []
         try:
             response = requests.get(self._baseURL + "modellibrary")
@@ -83,7 +84,7 @@ class WebService:
 
         return libraries
 
-    def getMaterialLibraries(self):
+    def getMaterialLibraries(self) -> list[MaterialLibraryType]:
         libraries = []
         try:
             response = requests.get(self._baseURL + "materiallibrary")
@@ -103,7 +104,7 @@ class WebService:
 
         return libraries
 
-    def getLibrary(self, name):
+    def getLibrary(self, name: str) -> MaterialLibraryType:
         try:
             response = requests.get(self._baseURL + "library/{}/".format(name))
             response.raise_for_status()
@@ -119,7 +120,7 @@ class WebService:
             print("Unable to get library:", ex)
             raise WSLibraryNotFound(ex)
 
-    def createLibrary(self, name, icon, readOnly):
+    def createLibrary(self, name: str, icon: bytes, readOnly: bool) -> None:
         try:
             library = {
                 "library_name": name,
@@ -135,10 +136,10 @@ class WebService:
             print("Unable to create library:", ex)
             raise WSLibraryCreationError(ex)
 
-    def libraryModels(self, library):
+    def libraryModels(self, libraryName: str) -> list[MaterialLibraryObjectType]:
         models = []
         try:
-            response = requests.get(self._baseURL + "libraryModels/{}/".format(library))
+            response = requests.get(self._baseURL + "libraryModels/{}/".format(libraryName))
             response.raise_for_status()
 
             list = response.json()
@@ -154,10 +155,12 @@ class WebService:
 
         return models
 
-    def libraryMaterials(self, library):
+    def libraryMaterials(self, libraryName: str,
+                         filter: Materials.MaterialFilter = None,
+                         options: Materials.MaterialFilterOptions = None) -> list[MaterialLibraryObjectType]:
         models = []
         try:
-            response = requests.get(self._baseURL + "libraryMaterials/{}/".format(library))
+            response = requests.get(self._baseURL + "libraryMaterials/{}/".format(libraryName))
             response.raise_for_status()
 
             list = response.json()
@@ -234,7 +237,7 @@ class WebService:
 
         return properties
 
-    def getModel(self, uuid):
+    def getModel(self, uuid: str) -> ModelObjectType:
         try:
             response = requests.get(self._baseURL + "model/{}/".format(uuid))
             response.raise_for_status()
@@ -256,7 +259,7 @@ class WebService:
             # for property in properties:
             #     model.addProperty(property)
 
-            return (uuid, library, model)
+            return ModelObjectType(library, model)
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
             raise WSConnectionError(http_err)
