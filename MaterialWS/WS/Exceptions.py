@@ -23,20 +23,31 @@
 __author__ = "David Carter"
 __url__ = "https://www.davesrocketshop.com"
 
-class WSCreationError(Exception):
+class WSError(Exception):
 
-    def __init__(self, error):
+    def __init__(self, message="Error", error=None):
         self._error = error
+        self.message = message
 
-class WSTableCreationError(Exception):
+    def __str__(self):
+        if self._error is not None:
+            return repr(self._error)
+        return repr(self.message)
 
-    def __init__(self, error):
-        self._error = error
+class WSCreationError(WSError):
 
-class WSConnectionError(Exception):
+    def __init__(self, message="Unable to create object", error=None):
+        super().__init__(message, error)
 
-    def __init__(self, message="Unable to connect"):
-        self._message = message
+class WSTableCreationError(WSError):
+
+    def __init__(self, message="Unable to create table", error=None):
+        super().__init__(message, error)
+
+class WSConnectionError(WSError):
+
+    def __init__(self, message="Unable to connect", error=None):
+        super().__init__(message, error)
 
 #---
 #
@@ -44,33 +55,20 @@ class WSConnectionError(Exception):
 #
 #---
 
-class WSLibraryCreationError(Exception):
+class WSLibraryCreationError(WSError):
 
-    def __init__(self, error):
-        self._error = error
+    def __init__(self, message="Unable to create library", error=None):
+        super().__init__(message, error)
 
-class WSIconError(Exception):
+class WSIconError(WSError):
 
-    def __init__(self, msg="Unable to set icon", error=None):
-        self._error = error
-        self.msg = msg
+    def __init__(self, message="Unable to set icon", error=None):
+        super().__init__(message, error)
 
-    def __str__(self):
-        if self._error is not None:
-            return repr(self._error)
-        return repr(self.msg)
+class WSLibraryNotFound(WSError):
 
-
-class WSLibraryNotFound(Exception):
-
-    def __init__(self, msg="Library not found", error=None):
-        self._error = error
-        self.msg = msg
-
-    def __str__(self):
-        if self._error is not None:
-            return repr(self._error)
-        return repr(self.msg)
+    def __init__(self, message="Library not found", error=None):
+        super().__init__(message, error)
 
 #---
 #
@@ -78,37 +76,25 @@ class WSLibraryNotFound(Exception):
 #
 #---
 
-class WSModelCreationError(Exception):
+class WSModelCreationError(WSError):
 
-    def __init__(self, error):
-        self._error = error
+    def __init__(self, message="Unable to create model", error=None):
+        super().__init__(message, error)
 
-class WSModelUpdateError(Exception):
+class WSModelUpdateError(WSError):
 
-    def __init__(self, error):
-        self._error = error
+    def __init__(self, message="Unable to update model", error=None):
+        super().__init__(message, error)
 
-class WSModelExistsError(Exception):
+class WSModelExistsError(WSError):
 
-    def __init__(self, error=None):
-        self._error = error
-        self.msg = "Model already exists"
+    def __init__(self, message="Model exists", error=None):
+        super().__init__(message, error)
 
-    def __str__(self):
-        if self._error is not None:
-            return repr(self._error)
-        return repr(self.msg)
+class WSModelNotFound(WSError):
 
-class WSModelNotFound(Exception):
-
-    def __init__(self, error=None):
-        self._error = error
-        self.msg = "Model not found"
-
-    def __str__(self):
-        if self._error is not None:
-            return repr(self._error)
-        return repr(self.msg)
+    def __init__(self, message="Model not found", error=None):
+        super().__init__(message, error)
 
 #---
 #
@@ -116,32 +102,20 @@ class WSModelNotFound(Exception):
 #
 #---
 
-class WSMaterialCreationError(Exception):
+class WSMaterialCreationError(WSError):
 
-    def __init__(self, error):
-        self._error = error
+    def __init__(self, message="Unable to create material", error=None):
+        super().__init__(message, error)
 
-class WSMaterialExistsError(Exception):
+class WSMaterialExistsError(WSError):
 
-    def __init__(self, error=None):
-        self._error = error
-        self.msg = "Material already exists"
+    def __init__(self, message="Material exists", error=None):
+        super().__init__(message, error)
 
-    def __str__(self):
-        if self._error is not None:
-            return repr(self._error)
-        return repr(self.msg)
+class WSMaterialNotFound(WSError):
 
-class WSMaterialNotFound(Exception):
-
-    def __init__(self, error=None):
-        self._error = error
-        self.msg = "Material not found"
-
-    def __str__(self):
-        if self._error is not None:
-            return repr(self._error)
-        return repr(self.msg)
+    def __init__(self, message="Material not found", error=None):
+        super().__init__(message, error)
 
 #---
 #
@@ -149,24 +123,12 @@ class WSMaterialNotFound(Exception):
 #
 #---
 
-class WSRenameError(Exception):
+class WSRenameError(WSError):
 
-    def __init__(self, msg="Unable to rename object", error=None):
-        self._error = error
-        self.msg = msg
+    def __init__(self, message="Unable to rename object", error=None):
+        super().__init__(message, error)
 
-    def __str__(self):
-        if self._error is not None:
-            return repr(self._error)
-        return repr(self.msg)
+class WSDeleteError(WSError):
 
-class WSDeleteError(Exception):
-
-    def __init__(self, msg="Unable to remove object", error=None):
-        self._error = error
-        self.msg = msg
-
-    def __str__(self):
-        if self._error is not None:
-            return repr(self._error)
-        return repr(self.msg)
+    def __init__(self, message="Unable to remove object", error=None):
+        super().__init__(message, error)

@@ -22,11 +22,13 @@
 __author__ = "David Carter"
 __url__ = "https://www.davesrocketshop.com"
 
+import base64
+
 import requests
 from requests.exceptions import HTTPError
 
 import Materials
-from MaterialAPI.MaterialManagerExternal import MaterialLibraryType, MaterialLibraryObjectType
+from MaterialAPI.MaterialManagerExternal import MaterialLibraryType, MaterialLibraryObjectType, ModelObjectType
 
 from MaterialWS.WS.Exceptions import WSLibraryCreationError, \
     WSIconError, WSLibraryNotFound, \
@@ -52,14 +54,17 @@ class WebService:
             list = response.json()
             for entry in list:
                 print(entry)
-                libraries.append(MaterialLibraryType(entry["library_name"], b'', #entry["library_icon"],
-                                                     entry["library_read_only"], entry["library_modified"]))
+                icon = base64.b64decode(entry["library_icon"])
+                print("icon:")
+                print(icon)
+                libraries.append(MaterialLibraryType(entry["library_name"], icon,
+                                                     entry["library_read_only"]))
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
-            raise WSConnectionError(http_err)
+            raise WSConnectionError(error=http_err)
         except Exception as ex:
             print("Unable to get libraries:", ex)
-            raise WSLibraryNotFound(ex)
+            raise WSLibraryNotFound(error=ex)
 
         return libraries
 
@@ -72,14 +77,17 @@ class WebService:
             list = response.json()
             for entry in list:
                 print(entry)
-                libraries.append(MaterialLibraryType(entry["library_name"], entry["library_icon"],
-                                                     entry["library_read_only"], entry["library_modified"]))
+                icon = base64.b64decode(entry["library_icon"])
+                print("icon:")
+                print(icon)
+                libraries.append(MaterialLibraryType(entry["library_name"], icon,
+                                                     entry["library_read_only"]))
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
-            raise WSConnectionError(http_err)
+            raise WSConnectionError(error=http_err)
         except Exception as ex:
             print("Unable to get libraries:", ex)
-            raise WSLibraryNotFound(ex)
+            raise WSLibraryNotFound(error=ex)
 
         return libraries
 
@@ -92,14 +100,17 @@ class WebService:
             list = response.json()
             for entry in list:
                 print(entry)
-                libraries.append(MaterialLibraryType(entry["library_name"], entry["library_icon"],
-                                                     entry["library_read_only"], entry["library_modified"]))
+                icon = base64.b64decode(entry["library_icon"])
+                print("icon:")
+                print(icon)
+                libraries.append(MaterialLibraryType(entry["library_name"], icon,
+                                                     entry["library_read_only"]))
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
-            raise WSConnectionError(http_err)
+            raise WSConnectionError(error=http_err)
         except Exception as ex:
             print("Unable to get libraries:", ex)
-            raise WSLibraryNotFound(ex)
+            raise WSLibraryNotFound(error=ex)
 
         return libraries
 
@@ -110,14 +121,17 @@ class WebService:
 
             entry = response.json()
             print(entry)
-            return MaterialLibraryType(entry["library_name"], entry["library_icon"],
-                                                    entry["library_read_only"], entry["library_modified"])
+            icon = base64.b64decode(entry["library_icon"])
+            print("icon:")
+            print(icon)
+            return MaterialLibraryType(entry["library_name"], icon,
+                                                    entry["library_read_only"])
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
-            raise WSConnectionError(http_err)
+            raise WSConnectionError(error=http_err)
         except Exception as ex:
             print("Unable to get library:", ex)
-            raise WSLibraryNotFound(ex)
+            raise WSLibraryNotFound(error=ex)
 
     def createLibrary(self, name, icon, readOnly):
         try:
@@ -130,10 +144,10 @@ class WebService:
             response.raise_for_status()
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
-            raise WSConnectionError(http_err)
+            raise WSConnectionError(error=http_err)
         except Exception as ex:
             print("Unable to create library:", ex)
-            raise WSLibraryCreationError(ex)
+            raise WSLibraryCreationError(error=ex)
 
     def libraryModels(self, library):
         models = []
@@ -147,10 +161,10 @@ class WebService:
                 models.append(MaterialLibraryObjectType(entry["model_id"], entry["library"], entry["folder"]))
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
-            raise WSConnectionError(http_err)
+            raise WSConnectionError(error=http_err)
         except Exception as ex:
             print("Unable to get library:", ex)
-            raise WSLibraryNotFound(ex)
+            raise WSLibraryNotFound(error=ex)
 
         return models
 
@@ -166,10 +180,10 @@ class WebService:
                 models.append(MaterialLibraryObjectType(entry["material_id"], entry["library"], entry["folder"]))
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
-            raise WSConnectionError(http_err)
+            raise WSConnectionError(error=http_err)
         except Exception as ex:
             print("Unable to get library:", ex)
-            raise WSLibraryNotFound(ex)
+            raise WSLibraryNotFound(error=ex)
 
         return models
 
@@ -250,16 +264,16 @@ class WebService:
             model.Directory = entry["folder"]
             model.addInheritance(entry["inherits"])
 
-            library = entry["library"]
+            libraryName = entry["library"]
 
             # properties = self._getModelProperties(uuid)
             # for property in properties:
             #     model.addProperty(property)
 
-            return (uuid, library, model)
+            return ModelObjectType(libraryName, model)
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
-            raise WSConnectionError(http_err)
+            raise WSConnectionError(error=http_err)
         except Exception as ex:
-            print("Unable to get library:", ex)
-            raise WSModelNotFound(ex)
+            print("Unable to get model:", ex)
+            raise WSModelNotFound(error=ex)

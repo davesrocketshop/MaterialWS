@@ -87,6 +87,26 @@ class MaterialWSManager(MaterialManagerExternal):
         # pr.dump_stats("/Users/dcarter/Documents/profile.cprof")
         return mat
 
+    def libraryFolders(self, libraryName: str) -> list[str]:
+        print("libraryFolders('{}')".format(libraryName))
+        # return self._ws.libraryFolders(libraryName)
+
+    #
+    # Folder methods
+    #
+
+    def createFolder(self, libraryName: str, path: str) -> None:
+        print("createFolder('{0}', '{1}')".format(libraryName, path))
+        # self._ws.createFolder(libraryName, path)
+
+    def renameFolder(self, libraryName: str, oldPath: str, newPath: str) -> None:
+        print("renameFolder('{0}', '{1}', '{2}')".format(libraryName, oldPath, newPath))
+        # self._ws.renameFolder(libraryName, oldPath, newPath)
+
+    def deleteRecursive(self, libraryName: str, path: str) -> None:
+        print("deleteRecursive('{0}', '{1}')".format(libraryName, path))
+        # self._ws.deleteRecursive(libraryName, path)
+
     #
     # Model methods
     #
