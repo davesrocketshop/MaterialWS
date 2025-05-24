@@ -190,66 +190,29 @@ class WebService:
 
         return models
 
-    def _getModelColumns(self, uuid, propertyName):
-        columns = []
-        cursor = self._cursor()
-        cursor.execute("SELECT model_property_id FROM model_property "
-                                    "WHERE model_id = ? AND model_property_name = ?",
-                       uuid, propertyName)
-        propertyId = 0
-        row = cursor.fetchone()
-        if row:
-            propertyId = row.model_property_id
-            cursor.execute("SELECT model_property_name, "
-                                    "model_property_display_name, model_property_type, "
-                                    "model_property_units, model_property_url, "
-                                    "model_property_description FROM model_property_column "
-                                    "WHERE model_property_id = ?",
-                        propertyId)
+    def _getModelProperty(self, property):
+        prop = Materials.ModelProperty()
+        prop.Name = property["model_property_name"]
+        prop.DisplayName = property["model_property_display_name"]
+        prop.Type = property["model_property_type"]
+        prop.Units = property["model_property_units"]
+        prop.URL = property["model_property_url"]
+        prop.Description = property["model_property_description"]
 
-            rows = cursor.fetchall()
-            for row in rows:
-                prop = Materials.ModelProperty()
-                prop.Name = row.model_property_name
-                prop.DisplayName = row.model_property_display_name
-                prop.Type = row.model_property_type
-                prop.Units = row.model_property_units
-                prop.URL = row.model_property_url
-                prop.Description = row.model_property_description
+        columns = property["columns"]
+        for column in columns:
+            columnProp = Materials.ModelProperty()
+            columnProp.Name = column["model_property_name"]
+            columnProp.DisplayName = column["model_property_display_name"]
+            columnProp.Type = column["model_property_type"]
+            columnProp.Units = column["model_property_units"]
+            columnProp.URL = column["model_property_url"]
+            columnProp.Description = column["model_property_description"]
 
-                columns.append(prop)
+            prop.addColumn(columnProp)
 
-        return columns
+        return prop
 
-    def _getModelProperties(self, uuid):
-        properties = []
-        cursor = self._cursor()
-        cursor.execute("SELECT model_property_name, "
-                                    "model_property_display_name, model_property_type, "
-                                    "model_property_units, model_property_url, "
-                                    "model_property_description FROM model_property "
-                                    "WHERE model_id = ?",
-                       uuid)
-
-        rows = cursor.fetchall()
-        for row in rows:
-            prop = Materials.ModelProperty()
-            prop.Name = row.model_property_name
-            prop.DisplayName = row.model_property_display_name
-            prop.Type = row.model_property_type
-            prop.Units = row.model_property_units
-            prop.URL = row.model_property_url
-            prop.Description = row.model_property_description
-
-            properties.append(prop)
-
-        # This has to happen after the properties are retrieved to prevent nested queries
-        for property in properties:
-            columns = self._getModelColumns(uuid, property.Name)
-            for column in columns:
-                property.addColumn(column)
-
-        return properties
 
     def getModel(self, uuid: str) -> ModelObjectType:
         try:
@@ -265,13 +228,15 @@ class WebService:
             model.Description = entry["model_description"]
             model.DOI = entry["model_doi"]
             model.Directory = entry["folder"]
-            model.addInheritance(entry["inherits"])
+            inherits = entry["inherits"]
+            if len(inherits) > 0:
+                model.addInheritance(inherits[0])
 
             libraryName = entry["library"]
 
-            # properties = self._getModelProperties(uuid)
-            # for property in properties:
-            #     model.addProperty(property)
+            properties = entry["properties"]
+            for property in properties:
+                model.addProperty(self._getModelProperty(property))
 
             return ModelObjectType(libraryName, model)
         except HTTPError as http_err:
